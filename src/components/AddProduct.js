@@ -8,7 +8,8 @@ const initState = {
   price: "",
   stock: "",
   shortDesc: "",
-  productImage: ""
+  productImage: "",
+  redirectVal: false
 };
 
 class AddProduct extends Component {
@@ -39,9 +40,8 @@ class AddProduct extends Component {
         () => this.setState(initState)
       );
       this.setState(
-        { flash: { status: 'is-success', msg: 'Product created successfully' }}
+        { flash: { status: 'is-success', msg: 'Product created successfully' }, redirectVal: true}
       );
-
     } else {
       this.setState(
         { flash: { status: 'is-danger', msg: 'Please enter name and price' }}
@@ -70,10 +70,10 @@ class AddProduct extends Component {
   };
 
   render() {
-    const { name, price, stock, shortDesc } = this.state;
+    const { name, price, stock, shortDesc, redirectVal } = this.state;
     const { user } = this.props.context;
 
-    return !(user && user.accessLevel < 1) ? (
+    return !(user && user.accessLevel < 1) || redirectVal ? (
       <Redirect to="/" />
     ) : (
       <>

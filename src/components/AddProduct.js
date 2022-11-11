@@ -8,7 +8,7 @@ const initState = {
   price: "",
   stock: "",
   shortDesc: "",
-  description: ""
+  productImage: ""
 };
 
 class AddProduct extends Component {
@@ -19,14 +19,13 @@ class AddProduct extends Component {
 
   save = async (e) => {
     e.preventDefault();
-    const { name, price, stock, shortDesc, description } = this.state;
-
+    const { name, price, stock, shortDesc, productImage } = this.state;
     if (name && price) {
       const id = Math.random().toString(36).substring(2) + Date.now().toString(36);
 
       await axios.post(
         'http://localhost:3001/products',
-        { id, name, price, stock, shortDesc, description },
+        { id, name, price, stock, shortDesc, productImage },
       )
 
       this.props.context.addProduct(
@@ -34,7 +33,7 @@ class AddProduct extends Component {
           name,
           price,
           shortDesc,
-          description,
+          productImage,
           stock: stock || 0
         },
         () => this.setState(initState)
@@ -50,10 +49,28 @@ class AddProduct extends Component {
     }
   };
 
-  handleChange = e => this.setState({ [e.target.name]: e.target.value, error: "" });
+  handleChange = e => {
+    if(e.target.files) {
+      const data = new FormData()
+      data.append("file", e.target.files[0])
+      data.append("upload_preset", "claduss")
+      data.append("cloud_name","ddj15zven")
+      fetch("  https://api.cloudinary.com/v1_1/ddj15zven/image/upload",{
+      method:"post",
+      body: data
+      })
+      .then(resp => resp.json())
+      .then(data => {
+
+      this.setState({productImage: data.secure_url})
+      })
+      .catch(err => console.log(err))
+      }
+      this.setState({ [e.target.name]: e.target.value, error: "" })
+  };
 
   render() {
-    const { name, price, stock, shortDesc, description } = this.state;
+    const { name, price, stock, shortDesc } = this.state;
     const { user } = this.props.context;
 
     return !(user && user.accessLevel < 1) ? (
@@ -100,6 +117,8 @@ class AddProduct extends Component {
                   name="stock"
                   value={stock}
                   onChange={this.handleChange}
+                  required
+                  min="1"
                 />
               </div>
               <div className="field">
@@ -113,16 +132,8 @@ class AddProduct extends Component {
                 />
               </div>
               <div className="field">
-                <label className="label">Description: </label>
-                <textarea
-                  className="textarea"
-                  type="text"
-                  rows="2"
-                  style={{ resize: "none" }}
-                  name="description"
-                  value={description}
-                  onChange={this.handleChange}
-                />
+                <label className="label">Upload product image </label>
+                <input type="file" name="productImage" onChange={this.handleChange}/>
               </div>
               {this.state.flash && (
                 <div className={`notification ${this.state.flash.status}`}>

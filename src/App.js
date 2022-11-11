@@ -58,8 +58,9 @@ export default class App extends Component {
 
   logout = e => {
     e.preventDefault();
-    this.setState({ user: null });
+    this.setState({ user: null, cart: {} });
     localStorage.removeItem("user");
+    localStorage.removeItem("cart")
   };
 
   addProduct = (product, callback) => {
@@ -70,16 +71,25 @@ export default class App extends Component {
 
   addToCart = cartItem => {
     let cart = this.state.cart;
-    if (cart[cartItem.id]) {
-      cart[cartItem.id].amount += cartItem.amount;
-    } else {
-      cart[cartItem.id] = cartItem;
-    }
-    if (cart[cartItem.id].amount > cart[cartItem.id].product.stock) {
-      cart[cartItem.id].amount = cart[cartItem.id].product.stock;
-    }
+    let productItems = this.state.products;
+    for(let i =0; i<productItems.length; i++) {
+      if(productItems[i].name === cartItem.id) {
+        if(productItems[i].stock > 0) {
+        productItems[i].stock = productItems[i].stock - 1;
+        if (cart[cartItem.id]) {
+          cart[cartItem.id].amount += cartItem.amount;
+        } else {
+          cart[cartItem.id] = cartItem;
+        }
     localStorage.setItem("cart", JSON.stringify(cart));
-    this.setState({ cart });
+    this.setState({ cart, products:productItems });
+      }
+    }
+    }
+
+    // if (cart[cartItem.id].amount > cart[cartItem.id].product.stock) {
+    //   cart[cartItem.id].amount = cart[cartItem.id].product.stock;
+    // }
   };
 
   removeFromCart = cartItemId => {
@@ -140,7 +150,7 @@ export default class App extends Component {
             aria-label="main navigation"
           >
             <div className="navbar-brand">
-              <b className="navbar-item is-size-4 ">ecommerce</b>
+              <b className="navbar-item is-size-4 ">Claduss</b>
               <label
                 role="button"
                 class="navbar-burger burger"
@@ -195,6 +205,9 @@ export default class App extends Component {
               <Route exact path="/add-product" component={AddProduct} />
               <Route exact path="/products" component={ProductList} />
             </Switch>
+            <div className="footer">
+              <p style={{position: "fixed", left: 0, bottom: 0, width: "100%" ,textAlign:"center", padding:"10px" }}>&#169; 2022 KIET Group of Institutions - All Rights Reserved</p>
+            </div>
           </div>
         </Router>
       </Context.Provider>

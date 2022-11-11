@@ -4,7 +4,7 @@ import withContext from "../withContext";
 
 const ProductList = props => {
   const { products } = props.context;
-
+  console.log("products========", products)
   return (
     <>
       <div className="hero is-primary">
